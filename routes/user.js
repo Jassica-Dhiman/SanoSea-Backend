@@ -7,6 +7,8 @@ const {
   forgetPassword,
   resetPassword,
   sendResetPasswordTokenStatus,
+  changePassword,
+  uploadProfilePhoto,
 } = require("../controllers/user");
 const { uploadImage } = require("../middlewares/multer");
 const { isAuth } = require("../middlewares/auth");
@@ -34,6 +36,7 @@ usersRouter.post("/forget-password", forgetPassword);
 
 usersRouter.post("/verify-pass-reset-token", sendResetPasswordTokenStatus);
 usersRouter.post("/reset-password", isValidPassResetToken, resetPassword);
+usersRouter.post("/change-password", changePassword);
 
 usersRouter.get("/is-auth", isAuth, (req, res) => {
   const { user } = req;
@@ -50,5 +53,11 @@ usersRouter.get("/is-auth", isAuth, (req, res) => {
     },
   });
 });
+
+usersRouter.post(
+  "/upload-profile-photo",
+  uploadImage.single("profilePhoto"),
+  uploadProfilePhoto
+);
 
 module.exports = usersRouter;

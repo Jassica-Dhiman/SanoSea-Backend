@@ -7,6 +7,7 @@ require("dotenv").config();
 require("./db/dbConnect.js");
 
 const userRouter = require("./routes/user");
+const adminRouter = require("./routes/admin.js");
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(morgan("dev"));
 
 app.use("/api/user", userRouter);
+app.use("/api/admin", adminRouter);
 
 // connecting server
 const PORT = process.env.PORT || 8000;

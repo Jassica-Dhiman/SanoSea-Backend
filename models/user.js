@@ -40,11 +40,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // rememberMe: {
-    //   type: Boolean,
-    //   required: false,
-    //   default: false,
-    // },
     officeAddress: {
       type: String,
       required: false,
@@ -58,31 +53,16 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Role",
       required: true,
-      // default: async function () {
-      //   const patientRole = await mongoose
-      //     .model("Role")
-      //     .findOne({ name: "Patient" });
-      //   return patientRole?._id;
-      // },
     },
     lastLogin: {
       type: Date,
       default: null,
     },
-    // role: {
-    //   type: String,
-    //   require: true,
-    //   default: "Patient",
-    //   enum: [
-    //     "Admin",
-    //     "Patient",
-    //     "General Physician",
-    //     "Audit Manager",
-    //     "Doctor",
-    //     "Port Agent",
-    //     "Coordinator",
-    //   ],
-    // },
+    state: {
+      type: String,
+      enum: ["Active", "Deactivate"],
+      default: "Active",
+    },
   },
   { timestamps: true }
 );
