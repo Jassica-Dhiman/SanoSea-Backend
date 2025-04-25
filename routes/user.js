@@ -9,6 +9,7 @@ const {
   sendResetPasswordTokenStatus,
   changePassword,
   uploadProfilePhoto,
+  updateUser,
 } = require("../controllers/user");
 const { uploadImage } = require("../middlewares/multer");
 const { isAuth } = require("../middlewares/auth");
@@ -48,8 +49,8 @@ usersRouter.get("/is-auth", isAuth, (req, res) => {
       phoneNumber: user.phoneNumber,
       email: user.email,
       officeAddress: user?.officeAddress,
-      // isVerified: user.isVerified,
-      role: user.role,
+      isVerified: user.isVerified,
+      role: user?.roleId?.name,
     },
   });
 });
@@ -59,5 +60,7 @@ usersRouter.post(
   uploadImage.single("profilePhoto"),
   uploadProfilePhoto
 );
+
+usersRouter.put("/:userId", isAuth, updateUser);
 
 module.exports = usersRouter;

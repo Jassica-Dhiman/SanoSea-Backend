@@ -109,8 +109,7 @@ exports.signUp = async (req, res) => {
         email: newUser.email,
         password: newUser.password,
         officeAddress: newUser?.officeAddress,
-        roleId: newUser.roleId,
-        roleName: role.name,
+        role: role.name,
       },
       // message:
       //   "Please verify your email. OTP has been sent to your email account!",
@@ -180,7 +179,6 @@ exports.verifyEmail = async (req, res) => {
 
         // token: jwtToken,
         isVerified: user.isVerified,
-        role: user.role,
       },
       message: "Your email is verified.",
     });
@@ -445,7 +443,7 @@ exports.changePassword = async (req, res) => {
   }
 };
 
-// Sign In
+// * Sign In
 exports.signIn = async (req, res) => {
   const { email, password } = req.body;
 
@@ -485,7 +483,7 @@ exports.signIn = async (req, res) => {
   }
 };
 
-// Upload Profile Photo
+// * Upload Profile Photo
 exports.uploadProfilePhoto = async (req, res) => {
   const { file } = req;
   const { userId } = req.userId; // Assuming user is authenticated and `userId` is available
@@ -511,6 +509,59 @@ exports.uploadProfilePhoto = async (req, res) => {
     res.status(200).json({
       message: "Profile photo uploaded successfully!",
       profilePhoto: user.profilePhoto,
+    });
+  } catch (error) {
+    sendError(res, error.message, 500);
+  }
+};
+
+// * Update user details
+exports.updateUser = async (req, res) => {
+  const { userId } = req.params; // Get user ID from the request parameters
+  const { firstName, lastName, email, phoneNumber, officeAddress } = req.body; // User details to update
+
+  try {
+    // Check if the user exists
+    const user = await User.findById(userId).populate("roleId");
+    if (!user) return sendError(res, "User not found!", 404);
+
+    // Check if email is already in use by another user
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) return sendError(res, "This email is already in use!");
+    }
+
+    // Check if phone number is already in use by another user
+    if (phoneNumber && phoneNumber !== user.phoneNumber) {
+      const phoneExists = await User.findOne({ phoneNumber });
+      if (phoneExists)
+        return sendError(res, "This phone number is already in use!");
+    }
+
+    // Update the user details
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
+    if (email) user.email = email;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (officeAddress) user.officeAddress = officeAddress;
+
+    // Save the updated user details
+    await user.save();
+
+    res.status(200).json({
+      message: "User details updated successfully!",
+      user: {
+        id: user._id,
+        fullName: user.lastName
+          ? `${user.firstName} ${user.lastName}`
+          : user.firstName,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        officeAddress: user.officeAddress,
+        role: user.roleId?.name,
+      },
     });
   } catch (error) {
     sendError(res, error.message, 500);

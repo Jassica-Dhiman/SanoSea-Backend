@@ -231,3 +231,69 @@ exports.getGeneralPhysician = async (req, res) => {
     sendError(res, error.message, 500);
   }
 };
+
+// * get users by role
+exports.getUsersByRoles = async (req, res) => {
+  const { roles } = req.query; // Expecting roles as a comma-separated string in query (e.g., ?roles=Coordinator,Audit Manager)
+
+  try {
+    if (!roles) {
+      return sendError(res, "Roles are required as query parameters!", 400);
+    }
+
+    // Split roles into an array
+    const roleNames = roles.split(",");
+
+    // Fetch roles from the Role collection
+    const roleDocuments = await Role.find({ name: { $in: roleNames } });
+    if (roleDocuments.length === 0) {
+      return sendError(res, "No matching roles found!", 404);
+    }
+
+    // Extract role IDs
+    const roleIds = roleDocuments.map((role) => role._id);
+
+    // Fetch users with the specified role IDs
+    const users = await User.find({ roleId: { $in: roleIds } }).populate(
+      "roleId"
+    );
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({
+        message: `No users found for the specified roles: ${roleNames.join(
+          ", "
+        )}.`,
+      });
+    }
+
+    res.status(200).json({
+      message: "Users fetched successfully!",
+      users,
+    });
+  } catch (error) {
+    sendError(res, error.message, 500);
+  }
+};
+
+// * delete user profile
+exports.deleteUser = async (req, res) => {
+  const { userId } = req.params; // User ID from request parameters
+
+  try {
+    // Check if the user exists
+    const user = await User.findById(userId).populate("roleId"); // Fetch the role details along with the user
+    if (!user) return sendError(res, "User not found!", 404);
+
+    // Store the user's role before deletion
+    const userRole = user.roleId.name;
+
+    // Delete the user from the database
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({
+      message: `${userRole} has been deleted successfully!`,
+    });
+  } catch (error) {
+    sendError(res, error.message, 500);
+  }
+};
