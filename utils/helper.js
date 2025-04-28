@@ -23,6 +23,27 @@ exports.uploadImageToCloud = async (file, userId, userName) => {
   return { url, public_id };
 };
 
+// uploading file to cloud
+exports.uploadFileToCloud = async (file, userId, userName) => {
+  // Generate a consistent folder name for the user
+  const folderName = `users/${userId}_${userName.replace(/\s+/g, "_")}`;
+
+  try {
+    const { secure_url: url, public_id } = await cloudinary.uploader.upload(
+      file,
+      {
+        folder: folderName, // Store files in the same user folder
+        resource_type: "auto", // Allows all file types (PDF, images, etc.)
+      }
+    );
+
+    return { url, public_id };
+  } catch (error) {
+    console.error("Cloudinary upload error:", error);
+    throw new Error("File upload failed!");
+  }
+};
+
 // generating random byte
 exports.generateRandomByte = () => {
   return new Promise((resolve, reject) => {

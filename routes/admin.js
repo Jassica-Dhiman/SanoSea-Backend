@@ -11,10 +11,17 @@ const {
   getUsersByRoles,
   deleteUser,
 } = require("../controllers/admin");
+const { uploadFile } = require("../middlewares/multer");
 
 const adminRouter = express.Router();
 
-adminRouter.post("/create", isAuth, isAdmin, create);
+adminRouter.post(
+  "/create",
+  isAuth,
+  isAdmin,
+  uploadFile.single("licenseProof"),
+  create
+);
 
 adminRouter.get("/sub-admin-list", isAuth, getSubAdmin);
 adminRouter.get("/audit-manager-list", isAuth, getAuditManagers);

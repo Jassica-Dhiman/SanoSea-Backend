@@ -54,6 +54,11 @@ const userSchema = new mongoose.Schema(
       ref: "Role",
       required: true,
     },
+    doctorProfile: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Doctor",
+      default: null, // Attach Doctor Profile if user is a Doctor
+    },
     lastLogin: {
       type: Date,
       default: null,
