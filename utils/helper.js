@@ -34,6 +34,7 @@ exports.uploadFileToCloud = async (file, userId, userName) => {
       {
         folder: folderName, // Store files in the same user folder
         resource_type: "auto", // Allows all file types (PDF, images, etc.)
+        // timeout: 60000, // Increase timeout to 60 seconds
       }
     );
 

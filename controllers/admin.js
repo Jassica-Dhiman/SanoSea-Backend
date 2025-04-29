@@ -12,10 +12,8 @@ const { generateMailTransporter } = require("../utils/mail.js");
 
 // * create route for sub admin
 exports.create = async (req, res) => {
-  const { firstName, lastName, email, phoneNumber, roleName, availability } =
-    req.body;
+  const { firstName, lastName, email, phoneNumber, roleName } = req.body;
   const { file } = req; // Capture uploaded file (only if Doctor)
-  console.log(roleName);
 
   try {
     // Check for existing email
@@ -49,7 +47,6 @@ exports.create = async (req, res) => {
 
     // If creating a Doctor profile, handle file upload & availability
     if (roleName === "Doctor") {
-      if (!file) return sendError(res, "Doctor's license proof is required!");
       if (file.mimetype !== "application/pdf")
         return sendError(res, "Only PDF format is allowed!");
 
@@ -64,7 +61,7 @@ exports.create = async (req, res) => {
       const doctorProfile = await Doctor.create({
         userId: newUser._id,
         licenseProof,
-        availability,
+        // availability,
       });
 
       // Attach Doctor Profile reference to the User
@@ -98,8 +95,7 @@ exports.create = async (req, res) => {
     });
 
     res.status(201).json({
-      message:
-        "Account Created Successfully! A temporary password has been sent to your email.",
+      message: `Account Created Successfully! A temporary password has been sent to the ${roleName} email.`,
       user: newUser,
     });
   } catch (error) {

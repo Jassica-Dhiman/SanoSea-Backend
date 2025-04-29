@@ -453,6 +453,15 @@ exports.signIn = async (req, res) => {
 
     if (!user) return sendError(res, "Invalid login credentials!", 404);
 
+    // Check if the user account is deactivated
+    if (user.state === "Deactivate") {
+      return sendError(
+        res,
+        "Your account has been deactivated by the authorities!",
+        403
+      );
+    }
+
     // Compare the provided password with the hashed password
     const matched = await user.comparePassword(password);
 
@@ -562,6 +571,37 @@ exports.updateUser = async (req, res) => {
         officeAddress: user.officeAddress,
         role: user.roleId?.name,
       },
+    });
+  } catch (error) {
+    sendError(res, error.message, 500);
+  }
+};
+
+// * Update user state (Active/Deactivate)
+exports.updateUserState = async (req, res) => {
+  const { userId } = req.params;
+  const { state } = req.body;
+
+  try {
+    // Validate state value
+    if (!["Active", "Deactivate"].includes(state)) {
+      return res.status(400).json({ error: "Invalid state value!" });
+    }
+
+    // Find and update user state
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { state },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found!" });
+    }
+
+    res.status(200).json({
+      message: `User state updated successfully to ${state}`,
+      user: updatedUser,
     });
   } catch (error) {
     sendError(res, error.message, 500);

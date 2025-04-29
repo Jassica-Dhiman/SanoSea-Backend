@@ -10,7 +10,7 @@ const imageFileFilter = (req, file, cb) => {
   cb(null, true);
 };
 
-// File filter for PDF & documents
+// File filter for PDF files
 const fileFilter = (req, file, cb) => {
   if (!file.mimetype.startsWith("application/pdf")) {
     return cb(new Error("Only PDF files are supported!"), false);
@@ -18,7 +18,13 @@ const fileFilter = (req, file, cb) => {
   cb(null, true);
 };
 
+// Configure multer with 5MB limit and file filter
+const upload = multer({
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter,
+});
+
 // Multer middleware for file uploads
-exports.uploadFile = multer({ storage, fileFilter });
+exports.uploadFile = multer({ storage, upload });
 
 exports.uploadImage = multer({ storage, fileFilter: imageFileFilter });
